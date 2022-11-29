@@ -8,7 +8,11 @@ import '../rest api/apiprovider.dart';
 class ApiRepository {
   final _provider = ApiProvider();
 
-  Future<GenerateOtpModel> generateOTP(String mobileNumber) async {
-    return await _provider.generateOTP(mobileNumber);
+  Future<Object> authenticate(String mobileNumber) async {
+    return await _provider.isAuthenticate(mobileNumber);
+  }
+
+  Future<Object> generateOTP(String otp) async {
+    return await _provider.generateOTP(otp);
   }
 }

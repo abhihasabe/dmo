@@ -17,7 +17,8 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  TextEditingController _authController = TextEditingController();
+  final TextEditingController _authController = TextEditingController();
+  final TextEditingController _otpController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool isOtpTextFieldVisible = false;
   ApiRepository apiRepository = ApiRepository();
@@ -67,6 +68,7 @@ class _LoginState extends State<Login> {
                         ),
                         isOtpTextFieldVisible
                             ? TextFormField(
+                                controller: _otpController,
                                 maxLines: 1,
                                 autofocus: false,
                                 autocorrect: false,
@@ -98,19 +100,23 @@ class _LoginState extends State<Login> {
                             if (_formKey.currentState!.validate()) {
                               _formKey.currentState!.save();
                               if (isOtpTextFieldVisible == true) {
-                                Navigator.pushAndRemoveUntil(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const DashBoard(),
-                                  ),
-                                  (route) => false,
-                                );
+                                apiRepository
+                                    .generateOTP(_otpController.text)
+                                    .then((value) {
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const DashBoard(),
+                                    ),
+                                    (route) => false,
+                                  );
+                                });
                               } else {
-                                setState(() {
-                                  apiRepository
-                                      .generateOTP(_authController.text)
-                                      .then((value) {
-                                        print("object: $value");
+                                apiRepository
+                                    .authenticate(_authController.text)
+                                    .then((value) {
+                                  print("object: $value");
+                                  setState(() {
                                     isOtpTextFieldVisible = true;
                                   });
                                 });

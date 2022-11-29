@@ -8,6 +8,7 @@ String kToken = 'Token';
 String kMobileNumber = 'MobileNumber';
 
 String kDeviceID = 'DeviceID';
+String kUserCode = 'UserCode';
 String kFirebaseToken = 'FirebaseToken';
 
 /*
