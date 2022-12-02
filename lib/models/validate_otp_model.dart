@@ -4,6 +4,12 @@ class ValidateOTPModel {
 
   ValidateOTPModel({this.data, this.details});
 
+  String? error;
+
+  ValidateOTPModel.withError(String errorMessage) {
+    error = errorMessage;
+  }
+
   ValidateOTPModel.fromJson(Map<String, dynamic> json) {
     if (json['Data'] != null) {
       data = <Data>[];

@@ -16,6 +16,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final TextEditingController _statusIdController = TextEditingController();
+  bool isLoading = true;
   List<String> dataList = [
     'Target',
     'Delivery',
@@ -25,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
     'Bags',
   ];
 
-  DashboardModel dashboardModel = DashboardModel(Data: []);
+  DashboardModel dashboardModel = DashboardModel(data: []);
 
   @override
   void initState() {
@@ -34,18 +36,20 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   getDahBoardData() async {
-    var reponse = await ApiProvider().getdashBoardData();
-    if (reponse.error != null) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(reponse.error.toString()),
-        ),
-      );
-    } else {
-      dashboardModel = reponse;
-      setState(() {});
-    }
+    await ApiProvider().getDashBoardData().then((reponse) {
+      isLoading = false;
+      if (reponse.error != null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(reponse.error.toString()),
+          ),
+        );
+      } else {
+        dashboardModel = reponse;
+        setState(() {});
+      }
+    });
   }
 
   @override
@@ -56,25 +60,26 @@ class _HomeScreenState extends State<HomeScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           TextFormField(
+            controller: _statusIdController,
             maxLines: 1,
             autofocus: false,
             autocorrect: false,
-
-            // onSaved: _authController.setMobileNo,
-            keyboardType: const TextInputType.numberWithOptions(),
             // enabled: !_authController.isOtpFieldVisible.value,
             decoration: InputDecoration(
-                labelText: kBagEnquiry, suffixIcon: const Icon(Icons.search)),
+                labelText: kBagEnquiry,
+                suffixIcon: InkWell(
+                    child: const Icon(Icons.search),
+                    onTap: () {
+                      Navigator.pushNamed(context, bagStatusStepperScreen,
+                          arguments: _statusIdController.text);
+                    })),
             inputFormatters: [
-              LengthLimitingTextInputFormatter(4),
-              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(8),
             ],
-
             validator: (input) {
               if (input!.isEmpty || input.length < 4) {
                 return kEnterSomething;
               }
-
               return null;
             },
           ),
@@ -82,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
             height: 20,
           ),
           Expanded(
-            child: dashboardModel.Data.isNotEmpty
+            child: dashboardModel.data!.isNotEmpty
                 ? ListView.separated(
                     itemBuilder: (context, index) {
                       return SizedBox(
@@ -93,7 +98,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               Navigator.pushNamed(context, targetsScreen);
                             } else if (index == 2) {
                               Navigator.pushNamed(
-                                  context, bagStatusStepperScreen);
+                                  context, bagStatisticsStepperScreen);
+                            } else if (index == 3) {
+                              Navigator.pushNamed(
+                                  context, bagBagListCustomCodeWiseScreen);
                             }
                           }),
                           child: Row(
@@ -114,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
-                                          dashboardModel.Data[index].Key
+                                          dashboardModel.data![index].key!
                                               .split(' ')
                                               .first,
                                           style: Theme.of(context)
@@ -124,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           margin:
                                               const EdgeInsets.only(left: 20),
                                           child: Text(
-                                              dashboardModel.Data[index].Key
+                                              dashboardModel.data![index].key!
                                                   .split(' ')
                                                   .last,
                                               style: Theme.of(context)
@@ -145,21 +153,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 24.0,
                                       ),
-                                      child:
-                                          dashboardModel.Data[index].Val != -1
-                                              ? Text(
-                                                  dashboardModel.Data[index].Val
-                                                      .toString(),
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .headline5!
-                                                      .copyWith(
-                                                          color: Colors.white))
-                                              : Image.asset(
-                                                  iconStatusIcon,
-                                                  height: 30,
-                                                  width: 30,
-                                                ),
+                                      child: dashboardModel.data![index].val !=
+                                              -1
+                                          ? Text(
+                                              dashboardModel.data![index].val
+                                                  .toString(),
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .headline5!
+                                                  .copyWith(
+                                                      color: Colors.white))
+                                          : Image.asset(
+                                              iconStatusIcon,
+                                              height: 30,
+                                              width: 30,
+                                            ),
                                     )),
                               )
                             ],
@@ -173,8 +181,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: 20,
                       );
                     },
-                    itemCount: dashboardModel.Data.length)
-                : const Center(child: CircularProgressIndicator()),
+                    itemCount: dashboardModel.data!.length)
+                : isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : const Center(child: Text("Data Not Found")),
           )
         ],
       ),

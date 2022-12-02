@@ -1,14 +1,14 @@
-class DashboardModel {
+class BagStatisticsModel {
   List<Data>? data;
 
-  DashboardModel({this.data});
+  BagStatisticsModel({this.data});
   String? error;
 
-  DashboardModel.withError(String errorMessage) {
+  BagStatisticsModel.withError(String errorMessage) {
     error = errorMessage;
   }
 
-  DashboardModel.fromJson(Map<String, dynamic> json) {
+  BagStatisticsModel.fromJson(Map<String, dynamic> json) {
     if (json['Data'] != null) {
       data = <Data>[];
       json['Data'].forEach((v) {
@@ -27,26 +27,23 @@ class DashboardModel {
 }
 
 class Data {
-  int? orderNo;
-  int? iD;
-  String? key;
-  int? val;
+  String? process;
+  int? processID;
+  int? pCount;
 
-  Data({this.orderNo, this.iD, this.key, this.val});
+  Data({this.process, this.processID, this.pCount});
 
   Data.fromJson(Map<String, dynamic> json) {
-    orderNo = json['OrderNo'];
-    iD = json['ID'];
-    key = json['Key'];
-    val = json['Val'];
+    process = json['Process'];
+    processID = json['ProcessID'];
+    pCount = json['PCount'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['OrderNo'] = orderNo;
-    data['ID'] = iD;
-    data['Key'] = key;
-    data['Val'] = val;
+    data['Process'] = process;
+    data['ProcessID'] = processID;
+    data['PCount'] = pCount;
     return data;
   }
 }

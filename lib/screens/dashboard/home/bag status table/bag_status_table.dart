@@ -1,39 +1,62 @@
+import 'package:diamond_bag_tracking/models/bag_detail_model.dart';
+import 'package:diamond_bag_tracking/rest%20api/apiprovider.dart';
 import 'package:diamond_bag_tracking/utils/mytheme.dart';
+import '../../../../widgets/customappbarbackwidget.dart';
+import '../../../../utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
-
-import '../../../../utils/constants.dart';
-import '../../../../widgets/customappbarbackwidget.dart';
+import 'package:intl/intl.dart';
 
 class BagStatusTableScreen extends StatefulWidget {
-  const BagStatusTableScreen({super.key});
+  BagStatusTableScreen({super.key, required, this.arguments});
+
+  String? arguments;
 
   @override
   State<BagStatusTableScreen> createState() => _BagStatusTableScreenState();
 }
 
 class _BagStatusTableScreenState extends State<BagStatusTableScreen> {
-  var rowSpacer = const TableRow(children: [
-    SizedBox(
-      height: 8,
-    ),
-    SizedBox(
-      height: 8,
-    ),
-    SizedBox(
-      height: 8,
-    ),
-    SizedBox(
-      height: 8,
-    ),
-    SizedBox(
-      height: 8,
-    ),
-    SizedBox(
-      height: 8,
-    )
-  ]);
+  final TextEditingController _bagNumberController = TextEditingController();
+  BagDetailModel bagDetailModel = BagDetailModel(data: []);
+  bool isLoading = true;
+  int pcs = 0;
+  double carats = 0.0;
+
+  getStatusSteeperData(String argument) async {
+    await ApiProvider().getBagDetailData(argument).then((reponse) {
+      isLoading = false;
+      if (reponse.error != null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(reponse.error.toString()),
+          ),
+        );
+      } else {
+        bagDetailModel = reponse;
+        setState(() {});
+        if (bagDetailModel.data!.isNotEmpty) {
+          for (var i = 0; i < bagDetailModel.data!.length; i++) {
+            pcs = bagDetailModel.data![i].pcs! + pcs;
+            carats = bagDetailModel.data![i].carats! + carats;
+          }
+          setState(() {});
+        }
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    if (widget.arguments != null) {
+      getStatusSteeperData(widget.arguments!);
+      _bagNumberController.text = widget.arguments!;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,13 +78,13 @@ class _BagStatusTableScreenState extends State<BagStatusTableScreen> {
               height: 10,
             ),
             TextFormField(
+              controller: _bagNumberController,
               maxLines: 1,
               autofocus: false,
               autocorrect: false,
-
               // onSaved: _authController.setMobileNo,
               keyboardType: const TextInputType.numberWithOptions(),
-              // enabled: !_authController.isOtpFieldVisible.value,
+              enabled: false,
               decoration: InputDecoration(
                   labelText: kBagNo, suffixIcon: const Icon(Icons.search)),
               inputFormatters: [
@@ -80,64 +103,88 @@ class _BagStatusTableScreenState extends State<BagStatusTableScreen> {
             const SizedBox(
               height: 20,
             ),
-            Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                    child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: const Color(0xFFE6E5E5),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 8.0, horizontal: 2),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            bagDetailModel.data!.isNotEmpty
+                ? Row(
                     children: [
-                    const Text('Order Date'),
-                     Text('11-01-2022',style: Theme.of(context).textTheme.headline6,),
-                  ]),
-                )),
-                const SizedBox(
-                  width: 5,
-                ),
-                Expanded(
-                  flex: 3,
-                    child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: const Color(0xFFE6E5E5),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 8.0, horizontal: 2),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                    const Text('Expiry Delivery Date'),
-                     Text('11-01-2022',style: Theme.of(context).textTheme.headline6,),
-                  ]),
-                )),
-                const SizedBox(
-                  width: 5,
-                ),
-                Expanded(
-                  flex: 3,
-                    child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: const Color(0xFFE6E5E5),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 8.0, horizontal: 2),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                     Text('Actual Delivery Date',style: Theme.of(context).textTheme.subtitle1,),
-                     Text('11-01-2022',style: Theme.of(context).textTheme.headline6,),
-                  ]),
-                ))
-              ],
-            ),
+                      Expanded(
+                          flex: 3,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              color: const Color(0xFFE6E5E5),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 8.0, horizontal: 2),
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Order Date'),
+                                  Text(
+                                    DateFormat('dd-MM-yyyy').format(
+                                        DateTime.parse(bagDetailModel
+                                            .data![0].orderDate!)),
+                                    style:
+                                        Theme.of(context).textTheme.headline6,
+                                  ),
+                                ]),
+                          )),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Expanded(
+                          flex: 3,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              color: const Color(0xFFE6E5E5),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 8.0, horizontal: 2),
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Expiry Delivery Date'),
+                                  Text(
+                                    DateFormat('dd-MM-yyyy').format(
+                                        DateTime.parse(bagDetailModel
+                                            .data![0].expDelDate!)),
+                                    style:
+                                        Theme.of(context).textTheme.headline6,
+                                  ),
+                                ]),
+                          )),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Expanded(
+                          flex: 3,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              color: const Color(0xFFE6E5E5),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 8.0, horizontal: 2),
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Actual Delivery Date',
+                                    style:
+                                        Theme.of(context).textTheme.subtitle1,
+                                  ),
+                                  Text(
+                                    DateFormat('dd-MM-yyyy').format(
+                                        DateTime.parse(bagDetailModel
+                                            .data![0].actualDelDate!)),
+                                    style:
+                                        Theme.of(context).textTheme.headline6,
+                                  ),
+                                ]),
+                          ))
+                    ],
+                  )
+                : Container(),
             const SizedBox(
               height: 20,
             ),
@@ -154,8 +201,8 @@ class _BagStatusTableScreenState extends State<BagStatusTableScreen> {
                 4: FlexColumnWidth(2),
                 5: FlexColumnWidth(2),
               },
-              children: [
-                const TableRow(
+              children: const [
+                TableRow(
                     decoration: BoxDecoration(color: kPrimaryColor),
                     children: [
                       Padding(
@@ -215,77 +262,89 @@ class _BagStatusTableScreenState extends State<BagStatusTableScreen> {
                     ]),
               ],
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Table(
-                  border: TableBorder.all(
-                      color: const Color(0xFFE5E5E4),
-                      style: BorderStyle.solid,
-                      width: 1),
-                  columnWidths: const {
-                    0: FlexColumnWidth(2),
-                    1: FlexColumnWidth(3),
-                    2: FlexColumnWidth(2),
-                    3: FlexColumnWidth(3),
-                    4: FlexColumnWidth(2),
-                    5: FlexColumnWidth(2),
-                  },
-                  children: [
-                    for (int i = 0; i < 10; i++)
-                      TableRow(children: [
-                        Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Text(
-                                '$i',
-                              ),
-                            )),
-                        const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8.0),
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Text(
-                                'EM',
-                              ),
-                            )),
-                        const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8.0),
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Text(
-                                '0.002',
-                              ),
-                            )),
-                        const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8.0),
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Text(
-                                'WA',
-                              ),
-                            )),
-                        const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8.0),
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Text(
-                                '10',
-                              ),
-                            )),
-                        const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8.0),
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Text(
-                                '0.75',
-                              ),
-                            )),
-                      ]),
-                  ],
-                ),
-              ),
-            ),
+            bagDetailModel.data!.isNotEmpty
+                ? Expanded(
+                    child: SingleChildScrollView(
+                      child: Table(
+                        border: TableBorder.all(
+                            color: const Color(0xFFE5E5E4),
+                            style: BorderStyle.solid,
+                            width: 1),
+                        columnWidths: const {
+                          0: FlexColumnWidth(2),
+                          1: FlexColumnWidth(3),
+                          2: FlexColumnWidth(2),
+                          3: FlexColumnWidth(3),
+                          4: FlexColumnWidth(2),
+                          5: FlexColumnWidth(2),
+                        },
+                        children: [
+                          for (int i = 0; i < bagDetailModel.data!.length; i++)
+                            TableRow(children: [
+                              Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      '$i',
+                                    ),
+                                  )),
+                              Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      bagDetailModel.data![i].shapeName!,
+                                    ),
+                                  )),
+                              Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      bagDetailModel.data![i].stoneSize!
+                                          .toStringAsFixed(2),
+                                    ),
+                                  )),
+                              Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      bagDetailModel.data![i].qualityName!,
+                                    ),
+                                  )),
+                              Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      bagDetailModel.data![i].pcs!.toString(),
+                                    ),
+                                  )),
+                              Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      bagDetailModel.data![i].carats!
+                                          .toStringAsFixed(2),
+                                    ),
+                                  )),
+                            ]),
+                        ],
+                      ),
+                    ),
+                  )
+                : isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : const Center(child: Text("Data Not Found")),
             const SizedBox(
               height: 20,
             ),
@@ -305,7 +364,7 @@ class _BagStatusTableScreenState extends State<BagStatusTableScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text('Total PCS'),
-                          const Text('100'),
+                          Text('$pcs'),
                         ]),
                   )),
                   const SizedBox(
@@ -323,7 +382,7 @@ class _BagStatusTableScreenState extends State<BagStatusTableScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text('Total CTS'),
-                          const Text('00.2002'),
+                          Text('$carats'),
                         ]),
                   )),
                 ],

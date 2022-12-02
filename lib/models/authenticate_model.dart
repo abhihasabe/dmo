@@ -3,6 +3,12 @@ class AuthenticateModel {
 
   AuthenticateModel({this.data});
 
+  String? error;
+
+  AuthenticateModel.withError(String errorMessage) {
+    error = errorMessage;
+  }
+
   AuthenticateModel.fromJson(Map<String, dynamic> json) {
     if (json['Data'] != null) {
       data = <Data>[];

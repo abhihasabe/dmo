@@ -1,14 +1,15 @@
-class DashboardModel {
+class BagsFlutingModel {
   List<Data>? data;
 
-  DashboardModel({this.data});
+  BagsFlutingModel({this.data});
+
   String? error;
 
-  DashboardModel.withError(String errorMessage) {
+  BagsFlutingModel.withError(String errorMessage) {
     error = errorMessage;
   }
 
-  DashboardModel.fromJson(Map<String, dynamic> json) {
+  BagsFlutingModel.fromJson(Map<String, dynamic> json) {
     if (json['Data'] != null) {
       data = <Data>[];
       json['Data'].forEach((v) {
@@ -27,26 +28,26 @@ class DashboardModel {
 }
 
 class Data {
+  String? bagNo;
   int? orderNo;
-  int? iD;
-  String? key;
-  int? val;
+  int? pcs;
+  double? carats;
 
-  Data({this.orderNo, this.iD, this.key, this.val});
+  Data({this.bagNo, this.orderNo, this.pcs, this.carats});
 
   Data.fromJson(Map<String, dynamic> json) {
+    bagNo = json['BagNo'];
     orderNo = json['OrderNo'];
-    iD = json['ID'];
-    key = json['Key'];
-    val = json['Val'];
+    pcs = json['Pcs'];
+    carats = json['Carats'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
+    data['BagNo'] = bagNo;
     data['OrderNo'] = orderNo;
-    data['ID'] = iD;
-    data['Key'] = key;
-    data['Val'] = val;
+    data['Pcs'] = pcs;
+    data['Carats'] = carats;
     return data;
   }
 }

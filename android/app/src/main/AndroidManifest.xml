@@ -1,5 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.diamond_bag_tracking">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+
    <application
         android:label="diamond_bag_tracking"
         android:name="${applicationName}"

@@ -1,19 +1,19 @@
 import 'package:diamond_bag_tracking/widgets/customappbarbackwidget.dart';
 import 'package:diamond_bag_tracking/rest%20api/apiprovider.dart';
-import 'package:diamond_bag_tracking/models/target_model.dart';
+import 'package:diamond_bag_tracking/models/bags_fluting.dart';
 import 'package:diamond_bag_tracking/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-class TargetScreen extends StatefulWidget {
-  const TargetScreen({super.key});
+class BagFlutingScreen extends StatefulWidget {
+  const BagFlutingScreen({super.key});
 
   @override
-  State<TargetScreen> createState() => _TargetScreenState();
+  State<BagFlutingScreen> createState() => _BagFlutingScreenState();
 }
 
-class _TargetScreenState extends State<TargetScreen> {
-  TargetModel targetModel = TargetModel(data: []);
+class _BagFlutingScreenState extends State<BagFlutingScreen> {
+  BagsFlutingModel bagsFlutingModel = BagsFlutingModel(data: []);
   int tabId = 0, pcs = 0;
   double cts = 0.0;
   bool isLoading = true;
@@ -26,14 +26,15 @@ class _TargetScreenState extends State<TargetScreen> {
   }
 
   getTargetData(int tabId) async {
+    pcs = 0;
+    cts = 0.0;
     isLoading = true;
-    pcs = 0; cts = 0.0;
-    if (targetModel.data!.isNotEmpty) {
+    if (bagsFlutingModel.data!.isNotEmpty) {
       setState(() {
-        targetModel.data?.clear();
+        bagsFlutingModel.data?.clear();
       });
     }
-    await ApiProvider().getTargetsBagsData(tabId).then((reponse) {
+    await ApiProvider().getBagsFlutingData(tabId).then((reponse) {
       isLoading = false;
       if (reponse.error != null) {
         if (!mounted) return;
@@ -43,12 +44,12 @@ class _TargetScreenState extends State<TargetScreen> {
           ),
         );
       } else {
-        targetModel = reponse;
+        bagsFlutingModel = reponse;
         setState(() {});
-        if (targetModel.data!.isNotEmpty) {
-          for (int i = 0; i < targetModel.data!.length; i++) {
-            pcs = targetModel.data![i].pcs! + pcs;
-            cts = targetModel.data![i].carats! + cts;
+        if (bagsFlutingModel.data!.isNotEmpty) {
+          for (int i = 0; i < bagsFlutingModel.data!.length; i++) {
+            pcs = bagsFlutingModel.data![i].pcs! + pcs;
+            cts = bagsFlutingModel.data![i].carats! + cts;
           }
         }
       }
@@ -69,7 +70,7 @@ class _TargetScreenState extends State<TargetScreen> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   textAlign: TextAlign.start,
-                  kTargets,
+                  kBagFluting,
                   style: Theme.of(context).textTheme.headline2,
                 )),
             const SizedBox(
@@ -120,7 +121,7 @@ class _TargetScreenState extends State<TargetScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Total ${targetModel.data?.length} Bags',
+                  'Total ${bagsFlutingModel.data?.length} Bags',
                   style: Theme.of(context).textTheme.headline5,
                 ),
                 Row(
@@ -158,7 +159,7 @@ class _TargetScreenState extends State<TargetScreen> {
               height: 15,
             ),
             Expanded(
-              child: targetModel.data!.isNotEmpty
+              child: bagsFlutingModel.data!.isNotEmpty
                   ? ListView.separated(
                       shrinkWrap: true,
                       itemBuilder: (context, index) {
@@ -196,7 +197,7 @@ class _TargetScreenState extends State<TargetScreen> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              '${targetModel.data![index].bagNo}',
+                                              '${bagsFlutingModel.data![index].bagNo}',
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .headline3!
@@ -207,7 +208,7 @@ class _TargetScreenState extends State<TargetScreen> {
                                             Row(
                                               children: [
                                                 Text(
-                                                  '${targetModel.data![index].pcs} PCS',
+                                                  '${bagsFlutingModel.data![index].pcs} PCS',
                                                   style: const TextStyle(
                                                       color: Colors.black),
                                                 ),
@@ -224,8 +225,8 @@ class _TargetScreenState extends State<TargetScreen> {
                                                   width: 5,
                                                 ),
                                                 Text(
-                                                    '${targetModel.data![index].carats}CTS',
-                                                    style: TextStyle(
+                                                    '${bagsFlutingModel.data![index].carats}CTS',
+                                                    style: const TextStyle(
                                                         color: Colors.black)),
                                               ],
                                             ),
@@ -233,15 +234,12 @@ class _TargetScreenState extends State<TargetScreen> {
                                         ),
                                       ],
                                     ),
-                                    Expanded(
-                                      child: Text(
-                                        'Order No : ${targetModel.data![index].orderNo}',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline6,
-                                        softWrap: false,
-                                        maxLines: 1,
-                                      ),
+                                    Text(
+                                      'Order No : ${bagsFlutingModel.data![index].orderNo}',
+                                      style:
+                                          Theme.of(context).textTheme.headline6,
+                                      softWrap: false,
+                                      maxLines: 1,
                                     ),
                                   ]),
                               const SizedBox(
@@ -256,7 +254,7 @@ class _TargetScreenState extends State<TargetScreen> {
                           height: 15,
                         );
                       },
-                      itemCount: targetModel.data!.length)
+                      itemCount: bagsFlutingModel.data!.length)
                   : isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : const Center(child: Text("Data Not Found")),

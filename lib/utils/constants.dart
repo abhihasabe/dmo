@@ -32,7 +32,7 @@ String kBagsDashbordDetails = '/api/BagTracking/GetBagsDashbordDetails';
 String kTargetsBags = '/api/BagTracking/GetTargetsBagsList';
 String kBagsStatus = '/api/BagTracking/GetBagsStatus';
 String kBagDetails = '/api/BagTracking/GetBagDetails';
-String kBagStatistics = '/api/BagTracking/GetBagStatistics';
+String kBagStatisticsData = '/api/BagTracking/GetBagStatistics';
 String kFlutingBagsList = '/api/BagTracking/GetFlutingBagsList';
 String kBagsListCustomerCodeWise =
     '/api/BagTracking/GetBagsListCustomerCodeWise';
@@ -50,6 +50,10 @@ const userProfileScreen = '/UserProfile';
 const targetsScreen = '/Targets';
 const bagStatusStepperScreen = '/BagStatusStepper';
 const bagStatusTableScreen = '/BagStatusTable';
+const bagStatisticsStepperScreen = '/BagStatisticsStepper';
+const bagStatisticsFlutingScreen = '/BagStatisticsFluting';
+const bagBagListCustomCodeWiseScreen = '/BagListCustomCodeWise';
+const bagBagListCustomCodeScreen = '/BagListCustomCode';
 
 /*
 assets font name Declaration
@@ -89,6 +93,9 @@ String kBagEnquiry = 'Bag Enquiry';
 String kBagNo = 'Bag Number';
 String kTargets = 'Targets';
 String kBagStatus = 'Bag Status';
+String kBagStatistics = 'Bag Statistics';
+String kBagFluting = "Bag's in Fluting";
 String kEnterMobileNo = '* Enter Mobile Number';
 String kEnterOTP = '* Enter OTP';
 String kEnterSomething = 'Enter Something';
+String kCustomerCode = 'Customer Code';
